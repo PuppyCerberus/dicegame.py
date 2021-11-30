@@ -17,12 +17,12 @@ conn: Connection = connect("PuppyAdventure_Game.db", check_same_thread=False)
 c: Cursor = conn.cursor()
 
 c.execute(
-    "CREATE TABLE IF NOT EXISTS dice_game (tg_username TEXT UNIQUE, points INTEGER NOT NULL,\
+    "CREATE TABLE IF NOT EXISTS dice_game (tg_username TEXT UNIQUE, points TEXT NOT NULL,\
     date TEXT, time TEXT)"
 )
 
 
-def dice_entry(tg_username: str, dice_point: int) -> None:
+def dice_entry(tg_username: str, dice_point: str) -> None:
     c.execute(
         """INSERT INTO dice_game (tg_username, points, date, time)
         VALUES (?, ?, datetime('now'), datetime('now', 'localtime'))""",
@@ -41,7 +41,7 @@ def dice_bot(message):
     string = [str(list_ext) for list_ext in list_exts]  # convert the list into string
     a_string = "".join(string)
     an_integer = int(a_string)  # existing data from the table
-    final_points = rolling_dice + an_integer
+    final_points = int(rolling_dice) + an_integer
 
     try:
         if final_points >= 144:
@@ -58,16 +58,16 @@ def dice_bot(message):
         string = [str(list_ext) for list_ext in list_exts]  # convert the list into string
         a_string = "".join(string)
         an_integer = int(a_string)  # existing data from the table
-        final_points = rolling_dice + an_integer
+        final_points = int(rolling_dice) + an_integer
         c.execute("UPDATE dice_game SET points = ? WHERE tg_username = ?", (final_points, username), )
         conn.commit()
 
         print(str(rolling_dice) + " This is what you roll")
         print(str(an_integer) + " This is the existing points from database")
         print(str(rolling_dice + an_integer) + " This is the final points updated on database")
-        miya_bot.send_message(message.chat.id, "Your total points are " + final_points)
+        miya_bot.send_message(message.chat.id, "Your total points are " + str(final_points))
 
 
 telebot.apihelper.RETRY_ON_ERROR = True
 
-cerberus_bot.polling(none_stop=True)
+miya_bot.polling(none_stop=True)
